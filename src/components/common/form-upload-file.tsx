@@ -4,6 +4,7 @@ import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
 import Image from "next/image";
 import { getImageData } from "@/lib/utils";
+import { Preview } from "@/types/general";
 
 export default function FormUploadFile<T extends FieldValues>({
     form,
@@ -15,11 +16,8 @@ export default function FormUploadFile<T extends FieldValues>({
     form: UseFormReturn<T>;
     name: Path<T>;
     label: string;
-    preview?: {
-            file: File;
-            displayUrl: string;
-    };
-        setPreview?: (preview: { file: File; displayUrl: string; })=>void;
+    preview?:Preview;
+        setPreview?: (preview: Preview)=>void;
     }) {
     return (
         <FormField control={form.control} name={name} render={({field: {onChange, ...rest}}) => (

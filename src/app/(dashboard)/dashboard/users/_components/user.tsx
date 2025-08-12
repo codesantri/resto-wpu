@@ -10,16 +10,20 @@ import useDataTable from "@/hooks/use-datatable";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { SquarePen, Trash } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import CreateUser from "./create-user";
 import Image from "next/image";
 import AvatarName from "@/components/common/avatar-name";
+import { capitalize } from "@/lib/utils";
+import { Profile } from "@/types/auth";
+import UpdateUser from "./update-user";
+import DeleteUser from "./delete-user";
 
 export default function UserManagement() {
     const supabase = createClient();
     const { currentPage, currentLimit, currentSearch, handleChangePage, handleChangeLimit, handleChangeSearch } = useDataTable();
-    const {data:users, isLoading, }= useQuery({
+    const {data:users, isLoading, refetch }= useQuery({
         queryKey: ['users', currentPage, currentLimit, currentSearch],
         queryFn: async () => {
             const result = await supabase
@@ -36,54 +40,63 @@ export default function UserManagement() {
         },
     });
     
+    const [selectedAction, setSelectedAction] = useState<{
+        data: Profile,
+        type: 'update' | 'delete'
+    } | null>(null);
 
+    const handleChangeAction = (open: boolean) => {
+        if (!open) setSelectedAction(null);
+    }
+    
+
+    // user-management.tsx (only key changes)
     const filterData = useMemo(() => {
-        return (users?.data || []).map((user, index) => {
-            // const nameAvatar = (
-            // <div className="flex items-center gap-2">
-            //         <Image src={user.avatar_url} alt={user.name} width={50} height={50}
-            //             className="w-10 h-10 rounded-full object-cover border"
-            //     />
-            //     <span>{user.name}</span>
-            // </div>
-            // );
-            return [
-                index + 1,
-                <AvatarName role="" url={user.avatar_url} name={user.name} />,
-                user.role,
-               <DropdownAction
-                    menu={[
-                        {
-                            label: (
-                                <span className="flex items-center gap-2">
-                                <SquarePen />
-                                Edit
-                                </span>
-                            ),
-                            action: () => alert("Edit clicked"),
-                            type: "button",
-                        },
-                       {
-                             label: (
-                                <span className="flex items-center gap-2">
-                                <Trash className="text-red-600" />
-                                Delete
-                                </span>
-                            ),
-                            action: () => confirm("Are you sure?"),
-                            variant: "destructive",
-                            type: "button",
-                        },
-                    ]}
-                />
-
-            ]
-        })
+    return (users?.data || []).map((user, index) => {
+        return [
+        currentLimit * (currentPage-1) + index + 1,
+        <AvatarName role="" url={user.avatar_url} name={user.name} />,
+        capitalize(user.role),
+        <DropdownAction
+            menu={[
+            {
+                label: (
+                <span className="flex items-center gap-2">
+                    <SquarePen />
+                    Edit
+                </span>
+                ),
+                action: () => setSelectedAction({
+                data: user,
+                type: 'update'
+                }),
+                type: "button",
+            },
+            {
+                label: (
+                <span className="flex items-center gap-2">
+                    <Trash className="text-red-600" />
+                    Delete
+                </span>
+                ),
+               action: () => setSelectedAction({
+                data: user,
+                type: 'delete'
+                }),
+                variant: "destructive",
+                type: "button",
+            },
+            ]}
+        />
+        ]
+    })
     }, [users]);
 
     const totalPages = useMemo(() => {
         return users && users.count !== null ? Math.ceil(users.count / currentLimit) : 0;
-    },[users])
+    }, [users])
+    
+
 
     return (
         <div className="w-full px-13">
@@ -95,7 +108,7 @@ export default function UserManagement() {
                         <DialogTrigger asChild>
                             <Button variant="default">+Create</Button>
                         </DialogTrigger>
-                        <CreateUser/>
+                        <CreateUser refetch={refetch} />
                     </Dialog>
                 </div>
             </div>
@@ -108,6 +121,18 @@ export default function UserManagement() {
                 currentLimit={currentLimit}
                 onChangePage={handleChangePage}
                 onChangeLimit={handleChangeLimit}
+            />
+            <UpdateUser
+                open={selectedAction !== null && selectedAction.type === 'update'}
+                handleChangeAction={handleChangeAction}
+                refetch={refetch}
+                currentData={selectedAction?.data}
+            />
+            <DeleteUser
+                open={selectedAction !== null && selectedAction.type === 'delete'}
+                handleAction={handleChangeAction}
+                refetch={refetch}
+                currentData={selectedAction?.data}
             />
         </div>
     )

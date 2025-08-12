@@ -1,6 +1,5 @@
 'use client';
 
-import FormInput from "@/components/common/form-input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
@@ -13,6 +12,7 @@ import { login } from "../action";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import AppLogo from "@/components/common/app-logo";
+import { TextInput } from "@/components/common/inputs";
 
 export default function Login() {
     const form = useForm<LoginForm>({
@@ -54,8 +54,8 @@ export default function Login() {
             <CardContent>
                 <Form {...form}>
                     <form className="space-y-5" onSubmit={onSubmit}>
-                        <FormInput form={form} type="email" label="Email" name="email" ph="Masukkan Email" />
-                        <FormInput form={form} type="password" label="Password" name="password" ph="*********"  />
+                        <TextInput form={form} type="email" label="Email" name="email" ph="Masukkan Email" />
+                        <TextInput form={form} type="password" label="Password" name="password" ph="*********"  />
                         <Button type="submit" className="w-full cursor-pointer">
                             {isPendingLogin ? <Loader2 className="animate-spin"/> :'Sign In'}
                         </Button>

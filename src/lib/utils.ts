@@ -17,3 +17,16 @@ export function getImageData(event: ChangeEvent<HTMLInputElement>) {
   return { file, displayUrl };
 }
 
+export function capitalize(str:string) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function IDR(number: number) {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0
+  }).format(number);
+}
+

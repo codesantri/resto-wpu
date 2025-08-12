@@ -1,16 +1,16 @@
 'use server';
-import { ISTATE_CREATE_USER } from "@/constants/user-constans";
-import { uploadFile } from "@/actions/storage-actions";
+import { IS_CREATE_USER, IS_UPDATE_USER } from "@/constants/user-constans";
+import { deleteFile, uploadFile } from "@/actions/storage-actions";
 import { createClient } from "@/lib/supabase/server";
 import { UserFormState } from "@/types/user";
-import { userFormSchema } from "@/validations/user-validation";
+import { createUserSchema, updateUserSchema } from "@/validations/user-validation";
 
-export default async function createUser(prevState: UserFormState, formData: FormData | null) {
+export  async function createUser(prevState: UserFormState, formData: FormData | null) {
     if (!formData) {
-        return ISTATE_CREATE_USER;
+        return IS_CREATE_USER;
     }
 
-    let validatedFields = userFormSchema.safeParse({
+    let validatedFields = createUserSchema.safeParse({
         email: formData.get('email'),
         password: formData.get('password'),
         name: formData.get('name'),
@@ -78,3 +78,107 @@ export default async function createUser(prevState: UserFormState, formData: For
     };
     
 }
+
+export  async function updateUser(prevState: UserFormState, formData: FormData | null) {
+    if (!formData) {
+        return IS_UPDATE_USER;
+    }
+
+    let validatedFields = updateUserSchema.safeParse({
+        name: formData.get('name'),
+        role: formData.get('role'),
+        avatar_url: formData.get('avatar_url'),
+
+    })
+
+     if (!validatedFields.success) {
+        return {
+            status: 'error',
+            errors: {
+                ...validatedFields.error.flatten().fieldErrors,
+                _form:[],
+            },
+        }
+     }
+    
+    if (validatedFields.data.avatar_url instanceof File) {
+        const oldVatarUrl = formData.get('old_avatar_url') as string;
+
+        const { errors, data } = await uploadFile('images', 'users', validatedFields.data.avatar_url, oldVatarUrl.split('/images/')[1]);
+        if (errors) {
+            return {
+                status: 'error',
+                errors: {
+                    ...prevState.errors,
+                _form: [...errors._form],
+                },
+                }
+            }
+        validatedFields = {
+            ...validatedFields,
+            data: {
+                ...validatedFields.data,
+                avatar_url:data.url,
+            }
+        }
+    }
+    
+    const supabase = await createClient();
+
+    const { error } = await supabase.from('profiles').update({
+        name: validatedFields.data.name,
+        role: validatedFields.data.role,
+        avatar_url: validatedFields.data.avatar_url,
+    }).eq('id', formData.get('id'));
+
+      if (error) {
+        return {
+            status: 'error',
+            errors: {
+                ...prevState.errors,
+                _form: [error.message]
+            },
+        };  
+      }
+    
+    return {
+        status: 'success',
+    };
+    
+}
+
+export async function deleteUser(prevState: UserFormState, formData: FormData | null) {
+    const supabase = await createClient({ isAdmin: true });
+    const image = formData?.get('avatar_url') as string;
+    const {status, errors} = await deleteFile('images', image.split('/images/')[1]);
+
+    if (status=== "error") {
+        return {
+            status: 'error',
+            errors: {
+                ...prevState.errors,
+                _form: [errors?._form?.[0]?? 'Unknown'],
+            },
+        };  
+    }
+    
+    const { error } = await supabase.auth.admin.deleteUser(
+        formData?.get('id') as string,
+    );
+
+    if (error) {
+        return {
+            status: 'error',
+            errors: {
+                ...prevState.errors,
+                _form: [error.message]
+            },
+        };  
+      }
+    
+    return {
+        status: 'success',
+    };
+
+}
+

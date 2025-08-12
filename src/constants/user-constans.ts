@@ -8,14 +8,26 @@ export const ICREATE_USER = {
     
 }
 
-export const ISTATE_CREATE_USER = {
+export const IS_CREATE_USER = {
     status: 'idle',
     errors: {
         email: [],
         password: [],
         name: [],
         role: [],
-        // avatar_url: [],
+        avatar_url: [],
+        _form:[],
+    }
+}
+
+export const IS_UPDATE_USER = {
+    status: 'idle',
+    errors: {
+        email: [],
+        password: [],
+        name: [],
+        role: [],
+        avatar_url: [],
         _form:[],
     }
 }

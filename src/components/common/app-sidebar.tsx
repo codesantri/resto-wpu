@@ -45,7 +45,7 @@ export default function AppSidebar() {
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader>
-                <SidebarMenu className="border-1 rounded-lg border-teal-600 w-full">
+                <SidebarMenu className="border-b-1 border-teal-600 w-full">
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <div className="flex items-center gap-2 self-center font-medium">
