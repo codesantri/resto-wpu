@@ -1,4 +1,4 @@
-import UserManagement from "./_components/user";
+import UserManagement from "./_components";
 export const metadata = {
     title: 'RESTOKU | User Management',
 };

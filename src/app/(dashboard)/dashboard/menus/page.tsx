@@ -1,4 +1,4 @@
-import MenuManagement from "./_components/menu";
+import MenuManagement from "./_components";
 
 export const metaData = {
     title: 'RESTOKU | Menu Management',

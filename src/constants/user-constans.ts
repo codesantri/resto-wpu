@@ -34,17 +34,17 @@ export const IS_UPDATE_USER = {
 
 export const ROLE_LIST = [
     {
-        value: 'admin',
-        label:'Admin',
-    },
-    {
-        value: 'user',
-        label:'User',
-    },
-    {
-        value: 'chasier',
-        label:'Chasier',
-    }
+    value: 'admin',
+    label: 'Admin',
+  },
+  {
+    value: 'user',
+    label: 'User',
+  },
+  {
+    value: 'cashier',
+    label: 'Cashier',
+  },
 ]
 
 

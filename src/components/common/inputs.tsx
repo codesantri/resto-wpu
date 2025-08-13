@@ -1,4 +1,4 @@
-import { FieldValues, Path, UseFormReturn } from "react-hook-form";
+import { Controller, FieldValues, Path, PathValue, UseFormReturn } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
@@ -6,6 +6,10 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { cn, getImageData } from "@/lib/utils";
 import { Preview } from "@/types/general";
 import Image from "next/image";
+import { Switch } from "../ui/switch";
+import { Label } from "../ui/label";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { useEffect } from "react";
 
 export  function TextInput<T extends FieldValues>({
     form,
@@ -26,9 +30,9 @@ export  function TextInput<T extends FieldValues>({
                 <FormLabel>{label}</FormLabel>
                 <FormControl>
                     {type === "textarea" ? (
-                        <Textarea placeholder={ph} autoComplete="off" className="resize-none" />
+                        <Textarea {...rest} placeholder={ph} autoComplete="off" className="resize-none" />
                     ) : (
-                        <Input {...rest} type={type} placeholder={ph} />    
+                        <Input {...rest} type={type} placeholder={ph}  />    
                     )}
                 </FormControl>
                 <FormMessage className="text-xs"/>
@@ -124,4 +128,91 @@ export function FileUpload<T extends FieldValues>({
             </FormItem>
         )} />
     )
+}
+
+export function Switcher<T extends FieldValues>({
+  form,
+  name,
+  label,
+}: {
+    form: UseFormReturn<T>;
+    name: Path<T>;
+    label: string;
+}) {
+  return (
+    <div className="flex items-center space-x-2">
+      <Controller
+        control={form.control}
+        name={name}
+        render={({ field }) => (
+          <>
+            <Switch
+              id={name}
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+            <Label htmlFor={name}>{label}</Label>
+          </>
+        )}
+      />
+    </div>
+  );
+}
+
+export function RadioSelect<T extends FieldValues>({
+  form,
+  name,
+  label,
+  options,
+  direction = "row",
+  defvalue
+}: {
+  form: UseFormReturn<T>;
+  name: Path<T>;
+  label?: string;
+  options: { value: string; label: string; disabled?: boolean }[];
+  direction?: "row" | "col";
+  defvalue: string | boolean;
+}) {
+  useEffect(() => {
+  if (form.getValues(name) === undefined) {
+    const valueToSet =
+      typeof defvalue === "string" ? defvalue === "true" : Boolean(defvalue);
+
+    form.setValue(name, valueToSet as PathValue<T, Path<T>>);
+  }
+}, [defvalue, form, name]);
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            <RadioGroup
+              value={field.value?.toString()}
+              onValueChange={(val) => field.onChange(val === "true")}
+              className={cn(direction === "row" ? "flex gap-4" : "flex flex-col gap-2")}
+            >
+              {options.map((option) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value={option.value}
+                    id={`${name}-${option.value}`}
+                    disabled={option.disabled}
+                  />
+                  <Label htmlFor={`${name}-${option.value}`}>
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </FormControl>
+          <FormMessage className="text-xs" />
+        </FormItem>
+      )}
+    />
+  );
 }

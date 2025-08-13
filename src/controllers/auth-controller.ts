@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+
 export async function login(prevState: AuthFormState, formData: FormData | null) {
     if (!formData) {
         return INITIAL_STATE_LOGIN_FORM;
@@ -59,3 +60,19 @@ export async function login(prevState: AuthFormState, formData: FormData | null)
     redirect('/')
 
 }
+
+export async function signOut() {
+    const supabase = await createClient();
+
+    const cookiesStore = await cookies();
+
+    try {
+        await supabase.auth.signOut();
+        cookiesStore.delete('user_profile');
+        revalidatePath('/', 'layout');
+    } catch(e) {
+        console.error('Error Signing out:', e)
+    }
+    redirect('/login');
+}
+

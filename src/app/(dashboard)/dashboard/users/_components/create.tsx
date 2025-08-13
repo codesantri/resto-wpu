@@ -4,7 +4,7 @@ import { startTransition, useActionState, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Preview } from "@/types/general";
-import FormUser from "./form-user";
+import FormUser from "./form";
 import { CreateUserForm, createUserSchema } from "@/validations/user-validation";
 import { createUser } from "./actions";
 

@@ -17,19 +17,15 @@ import { Menu } from "@/validations/menu-validation";
 import { useQuery } from "@tanstack/react-query";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
+import CreateMenu from "./create";
+import UpdateMenu from "./update";
+import DeleteMenu from "./delete";
 
 export default function MenuManagement() {
   const supabase = createClient();
-  const {
-    currentPage,
-    currentLimit,
-    currentSearch,
-    handleChangePage,
-    handleChangeLimit,
-    handleChangeSearch
-  } = useDataTable();
+  const {currentPage,currentLimit,currentSearch,handleChangePage,handleChangeLimit,handleChangeSearch} = useDataTable();
 
-  const { data: menus, isLoading } = useQuery({
+  const { data: menus, isLoading, refetch } = useQuery({
     queryKey: ["menus", currentPage, currentLimit, currentSearch],
     queryFn: async () => {
       let query = supabase
@@ -152,6 +148,7 @@ export default function MenuManagement() {
             <DialogTrigger asChild>
               <Button variant="default">+Create</Button>
             </DialogTrigger>
+            <CreateMenu refetch={refetch}/>
           </Dialog>
         </div>
       </div>
@@ -165,6 +162,20 @@ export default function MenuManagement() {
         currentLimit={currentLimit}
         onChangePage={handleChangePage}
         onChangeLimit={handleChangeLimit}
+      />
+
+      <UpdateMenu
+        open={selectedAction !== null && selectedAction.type === 'update'}
+        handleChangeAction={handleChangeAction}
+        refetch={refetch}
+        currentData={selectedAction?.data}
+      />
+
+      <DeleteMenu
+        open={selectedAction !== null && selectedAction.type === 'delete'}
+        handleAction={handleChangeAction}
+        refetch={refetch}
+        currentData={selectedAction?.data}
       />
 
       {/* Lightbox */}

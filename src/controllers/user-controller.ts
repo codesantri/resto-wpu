@@ -1,9 +1,11 @@
 'use server';
 import { IS_CREATE_USER, IS_UPDATE_USER } from "@/constants/user-constans";
-import { deleteFile, uploadFile } from "@/actions/storage-actions";
 import { createClient } from "@/lib/supabase/server";
 import { UserFormState } from "@/types/user";
 import { createUserSchema, updateUserSchema } from "@/validations/user-validation";
+import Storage from "@/storage";
+
+const storage = await Storage();
 
 export  async function createUser(prevState: UserFormState, formData: FormData | null) {
     if (!formData) {
@@ -30,7 +32,7 @@ export  async function createUser(prevState: UserFormState, formData: FormData |
      }
     
     if (validatedFields.data.avatar_url instanceof File) {
-        const { errors, data } = await uploadFile('images', 'users', validatedFields.data.avatar_url);
+        const { errors, data } = await Storage().upload('images', 'users', validatedFields.data.avatar_url);
         if (errors) {
             return {
                 status: 'error',
@@ -104,7 +106,7 @@ export  async function updateUser(prevState: UserFormState, formData: FormData |
     if (validatedFields.data.avatar_url instanceof File) {
         const oldVatarUrl = formData.get('old_avatar_url') as string;
 
-        const { errors, data } = await uploadFile('images', 'users', validatedFields.data.avatar_url, oldVatarUrl.split('/images/')[1]);
+        const { errors, data } = await Storage().upload('images', 'users', validatedFields.data.avatar_url, oldVatarUrl.split('/images/')[1]);
         if (errors) {
             return {
                 status: 'error',
@@ -150,7 +152,7 @@ export  async function updateUser(prevState: UserFormState, formData: FormData |
 export async function deleteUser(prevState: UserFormState, formData: FormData | null) {
     const supabase = await createClient({ isAdmin: true });
     const image = formData?.get('avatar_url') as string;
-    const {status, errors} = await deleteFile('images', image.split('/images/')[1]);
+    const {status, errors} = await storage.remove('images', image.split('/images/')[1]);
 
     if (status=== "error") {
         return {

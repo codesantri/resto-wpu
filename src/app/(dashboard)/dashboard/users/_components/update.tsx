@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import FormUser from "./form-user";
+import FormUser from "./form";
 import { updateUser } from "./actions";
 
 import { IS_UPDATE_USER } from "@/constants/user-constans";

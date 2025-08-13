@@ -12,13 +12,13 @@ import { useQuery } from "@tanstack/react-query";
 import { SquarePen, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import CreateUser from "./create-user";
+import CreateUser from "./create";
 import Image from "next/image";
 import AvatarName from "@/components/common/avatar-name";
 import { capitalize } from "@/lib/utils";
 import { Profile } from "@/types/auth";
-import UpdateUser from "./update-user";
-import DeleteUser from "./delete-user";
+import UpdateUser from "./update";
+import DeleteUser from "./delete";
 
 export default function UserManagement() {
     const supabase = createClient();

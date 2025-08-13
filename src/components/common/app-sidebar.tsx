@@ -34,9 +34,9 @@ import {
 import { SIDEBAR_MENU_LIST, SidebarMenuKey } from "@/constants/sidebar-constant";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { signOut } from "@/actions/auth-action";
 import { useAuthStore } from "@/stores/auth-store";
 import AvatarName from "./avatar-name";
+import { signOut } from "@/controllers/auth-controller";
 
 export default function AppSidebar() {
     const { isMobile } = useSidebar();
