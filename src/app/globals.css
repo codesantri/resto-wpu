@@ -3,6 +3,24 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --color-success: oklch(72.3% 0.219 149.579);
+  /* green-500 */
+  --color-info: oklch(58.8% 0.158 241.966);
+  /* blue-500 */
+  --color-primary: oklch(54.6% 0.245 262.881);
+  /* indigo-500 */
+  --color-warning: oklch(75% 0.183 55.934);
+  /* amber-500 */
+  --color-danger: oklch(62.66% 0.257 27.33);
+  /* red-600 */
+  --color-dark: oklch(20.61% 0.006 285.885);
+  /* gray-900 */
+  --color-white: oklch(100% 0 0);
+  /* white */
+  --color-gray: oklch(53.71% 0.004 264.542);
+  /* gray-500 */
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -41,6 +59,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
 }
 
 :root {
@@ -119,6 +138,7 @@
   body {
     @apply bg-background text-foreground;
   }
+
 
   input[type='number']::-webkit-inner-spin-button,
     input[type='number']::-webkit-outer-spin-button{

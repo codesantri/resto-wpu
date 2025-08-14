@@ -4,30 +4,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import FormUser from "./form";
-import { updateUser } from "./actions";
 
-import { IS_UPDATE_USER } from "@/constants/user-constans";
 import { Preview } from "@/types/general";
-import { Profile } from "@/types/auth";
-import { UpdateUserForm, updateUserSchema } from "@/validations/user-validation";
+import { User,userUpdateFormValidate } from "@/validations/user-validation";
 import { Dialog } from "@/components/ui/dialog";
+import { INITIAL_USER, STATE_USER } from "@/constants/user-constans";
+import { userUpdate } from "@/controllers/user-controller";
 
-export default function UpdateUser({
-  refetch,
-  currentData,
-  handleChangeAction,
-  open
-}: {
-  refetch: () => void;
-  currentData?: Profile;
-  open?: boolean;
-  handleChangeAction?: (open: boolean) => void;
-}) {
-  const form = useForm<UpdateUserForm>({
-    resolver: zodResolver(updateUserSchema),
-  });
+export default function UpdateUser({refetch,currentData,handleChangeAction,open}: {refetch: () => void;currentData?: User;open?: boolean; handleChangeAction?: (open: boolean) => void;}) {
+  const form = useForm({
+        resolver: zodResolver(userUpdateFormValidate),
+        defaultValues: INITIAL_USER,
+    });
 
-  const [updateState, updateAction, isPendingUpdate] = useActionState(updateUser, IS_UPDATE_USER);
+  const [updateState, updateAction, isPendingUpdate] = useActionState(userUpdate, STATE_USER);
   const [preview, setPreview] = useState<Preview>();
 
   const onSubmit = form.handleSubmit((data) => {
@@ -76,10 +66,20 @@ export default function UpdateUser({
       form.setValue("role", currentData.role as string);
       form.setValue("avatar_url", currentData.avatar_url ?? "");
 
-      setPreview({
-        file: new File([], currentData.avatar_url ?? ""),
-        displayUrl: currentData.avatar_url ?? "",
-      });
+
+      if (typeof currentData.avatar_url === "string") {
+        form.setValue("avatar_url", currentData.avatar_url);
+        setPreview({
+          file: new File([], currentData.avatar_url ?? ""),
+          displayUrl: currentData.avatar_url ?? "",
+        });
+      } else if (currentData.avatar_url instanceof File) {
+        form.setValue("avatar_url", currentData.avatar_url);
+        setPreview({
+          file: currentData.avatar_url,
+          displayUrl: URL.createObjectURL(currentData.avatar_url),
+        });
+      }
     }
   }, [currentData, form]);
 

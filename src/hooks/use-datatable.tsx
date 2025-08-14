@@ -1,6 +1,7 @@
-import { DEFAULT_LIMIT, DEFAULT_PAGE } from "@/constants/pagination-constans";
+
 import { useState } from "react";
 import useSearchDebounce from "./use-search-debounce";
+import { DEFAULT_LIMIT, DEFAULT_PAGE } from "@/tables/pagination-table";
 
 export default function useDataTable() {
     const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);

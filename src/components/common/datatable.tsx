@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import PaginationDatatable from "./pagination-datatable";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-import { LIMIT_LISTS } from "@/constants/pagination-constans";
+import { LIMIT_LISTS } from "@/tables/pagination-table";
 
 type DataTableProps = {
   header?: string[];

@@ -1,0 +1,193 @@
+'use server';
+
+import { STATE_ORDER } from "@/constants/order-constant";
+import { createClient } from "@/lib/supabase/server";
+import { OrderFormState} from "@/types/form-states";
+import { FormState } from "@/types/general";
+import { orderFormValidate } from "@/validations/order-validation";
+
+export async function orderStore(prevState: OrderFormState, formData: FormData | null) {
+    if (!formData) {
+        return STATE_ORDER;
+    }
+    
+    const validatedFields = orderFormValidate.safeParse({
+        customer_name: formData.get('customer_name'),
+        table_id: formData.get('table_id'),
+        status: formData.get('status'),
+    });
+
+
+    if (!validatedFields.success) {
+        return {
+            status: 'error',
+            errors: {
+                ...validatedFields.error.flatten().fieldErrors,
+                _form: [],
+            },
+        };
+    }
+
+    const supabase = await createClient();
+
+    const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const { data, error } = await supabase.from('orders').select('order_id').like('order_id', `ORD-${today}-%`).order('order_id', { ascending: false }).limit(1);
+
+    let nextNum = 1;
+    if (data?.length) {
+    const lastNum = parseInt(data[0].order_id.split('-').pop(), 10);
+    nextNum = lastNum + 1;
+    }
+
+    const orderId = `ORD-${today}-${String(nextNum).padStart(3, '0')}`;
+
+
+    const [orderResult, tableResult] = await Promise.all([
+        supabase.from('orders').insert({
+            order_id:orderId,
+            customer_name: validatedFields.data.customer_name,
+            table_id:validatedFields.data.table_id,
+            status: validatedFields.data.status,
+        }),
+        supabase.from('tables').update({
+            status: validatedFields.data.status==='reserved'?'reserved':'unavailable',
+        }).eq('id', validatedFields.data.table_id),
+    ]);
+
+    const orderError = orderResult.error;
+    const tableError = tableResult.error;
+
+    if (orderError|| tableError) {
+        return {
+            status: 'error',
+            errors: {
+                ...prevState.errors,
+                _form: [
+                    ...(orderError ? [orderError.message] : []),
+                    ...(tableError ? [tableError.message] : []),
+                ],
+            },
+        };
+    }
+
+    return {
+        status: 'success',
+    };
+}
+
+export async function orderStatusUpdate(prevState: FormState, formData: FormData | null) {
+    const supabase = await createClient();
+
+    const [orderResult, tableResult] = await Promise.all([
+        supabase.from('orders').update({
+            status: formData?.get('status'),
+        }).eq('id', formData?.get('id')),
+
+        supabase.from('tables').update({
+            status: formData?.get('status')==='process'? 'unavailable':'available',
+        }).eq('id', formData?.get('table_id')),
+    ]);
+
+    const orderError = orderResult.error;
+    const tableError = tableResult.error;
+
+    if (orderError|| tableError) {
+        return {
+            status: 'error',
+            errors: {
+                ...prevState.errors,
+                _form: [
+                    ...(orderError ? [orderError.message] : []),
+                    ...(tableError ? [tableError.message] : []),
+                ],
+            },
+        };
+    }
+
+    return {
+        status: 'success',
+    };
+}
+
+// export  async function tableUpdate(prevState: TableFormState, formData: FormData | null) {
+//     if (!formData) {
+//         return STATE_TABLE;
+//     }
+
+
+//     const validatedFields = tableFormValidate.safeParse({
+//         name: formData.get('name'),
+//         description: formData.get('description'),
+//         capacity: formData.get('capacity'),
+//         status: formData.get('status'),
+//     });
+
+//     if (!validatedFields.success) {
+//         return {
+//             status: 'error',
+//             errors: {
+//                 ...validatedFields.error.flatten().fieldErrors,
+//                 _form: [],
+//             },
+//         };
+//     }
+    
+
+    
+//     const supabase = await createClient();
+
+//     const { error } = await supabase.from('tables').update({
+//         name: validatedFields.data.name,
+//         description: validatedFields.data.description,
+//         capacity: validatedFields.data.capacity,
+//         status: validatedFields.data.status,
+//     }).eq('id', formData.get('id'));
+
+//       if (error) {
+//         return {
+//             status: 'error',
+//             errors: {
+//                 ...prevState.errors,
+//                 _form: [error.message]
+//             },
+//         };  
+//       }
+    
+//     return {
+//         status: 'success',
+//     };
+    
+// }
+
+// export async function tableDestroy(prevState: TableFormState, formData: FormData | null) {
+//     if (!formData) {
+//         return {
+//             status: "error",
+//             errors: {
+//                 ...prevState.errors,
+//                 _form: ["Invalid form data"],
+//             },
+//         };
+//     }
+
+//     const supabase = await createClient();
+
+//     const { error } = await supabase
+//         .from("tables")
+//         .delete()
+//         .eq("id", Number(formData.get("id")));
+
+//     if (error) {
+//         return {
+//             status: "error",
+//             errors: {
+//                 ...prevState.errors,
+//                 _form: [error.message],
+//             },
+//         };
+//     }
+
+//     return {
+//         status: "success",
+//     };
+// }

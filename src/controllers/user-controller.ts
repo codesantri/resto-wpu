@@ -1,18 +1,18 @@
 'use server';
-import { IS_CREATE_USER, IS_UPDATE_USER } from "@/constants/user-constans";
+import {STATE_USER } from "@/constants/user-constans";
 import { createClient } from "@/lib/supabase/server";
-import { UserFormState } from "@/types/user";
-import { createUserSchema, updateUserSchema } from "@/validations/user-validation";
 import Storage from "@/storage";
+import { UserFormState } from "@/types/form-states";
+import { userSchema } from "@/validations/user-validation";
 
 const storage = await Storage();
 
-export  async function createUser(prevState: UserFormState, formData: FormData | null) {
+export  async function userStore(prevState: UserFormState, formData: FormData | null) {
     if (!formData) {
-        return IS_CREATE_USER;
+        return STATE_USER;
     }
 
-    let validatedFields = createUserSchema.safeParse({
+    let validatedFields = userSchema.safeParse({
         email: formData.get('email'),
         password: formData.get('password'),
         name: formData.get('name'),
@@ -32,7 +32,7 @@ export  async function createUser(prevState: UserFormState, formData: FormData |
      }
     
     if (validatedFields.data.avatar_url instanceof File) {
-        const { errors, data } = await Storage().upload('images', 'users', validatedFields.data.avatar_url);
+        const { errors, data } = await storage.upload('images', 'users', validatedFields.data.avatar_url);
         if (errors) {
             return {
                 status: 'error',
@@ -81,16 +81,15 @@ export  async function createUser(prevState: UserFormState, formData: FormData |
     
 }
 
-export  async function updateUser(prevState: UserFormState, formData: FormData | null) {
+export  async function userUpdate(prevState: UserFormState, formData: FormData | null) {
     if (!formData) {
-        return IS_UPDATE_USER;
+        return STATE_USER;
     }
 
-    let validatedFields = updateUserSchema.safeParse({
+    let validatedFields = userSchema.safeParse({
         name: formData.get('name'),
         role: formData.get('role'),
         avatar_url: formData.get('avatar_url'),
-
     })
 
      if (!validatedFields.success) {
@@ -106,7 +105,7 @@ export  async function updateUser(prevState: UserFormState, formData: FormData |
     if (validatedFields.data.avatar_url instanceof File) {
         const oldVatarUrl = formData.get('old_avatar_url') as string;
 
-        const { errors, data } = await Storage().upload('images', 'users', validatedFields.data.avatar_url, oldVatarUrl.split('/images/')[1]);
+        const { errors, data } = await storage.upload('images', 'users', validatedFields.data.avatar_url, oldVatarUrl.split('/images/')[1]);
         if (errors) {
             return {
                 status: 'error',
@@ -149,7 +148,7 @@ export  async function updateUser(prevState: UserFormState, formData: FormData |
     
 }
 
-export async function deleteUser(prevState: UserFormState, formData: FormData | null) {
+export async function userDestroy(prevState: UserFormState, formData: FormData | null) {
     const supabase = await createClient({ isAdmin: true });
     const image = formData?.get('avatar_url') as string;
     const {status, errors} = await storage.remove('images', image.split('/images/')[1]);

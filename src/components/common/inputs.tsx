@@ -52,7 +52,7 @@ export function SelectInput<T extends FieldValues>({
     name: Path<T>;
     label: string;
     ph?: string;
-    items?: {value:string, label:string, disabled?:boolean}[];
+    items?: {value:string, label:string|React.ReactNode, disabled?:boolean}[];
     }) {
     return (
         <FormField control={form.control} name={name} render={({field: {onChange,...rest}}) => (
@@ -66,8 +66,8 @@ export function SelectInput<T extends FieldValues>({
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>{label}</SelectLabel>
-                                {items?.map((item) => (
-                                    <SelectItem key={item.label} value={item.value} disabled={item.disabled} className="capitalize">
+                                {items?.map((item, index) => (
+                                    <SelectItem key={index} value={item.value} disabled={item.disabled} className="capitalize">
                                         {item.label}
                                     </SelectItem>
                                 ))}
@@ -174,14 +174,12 @@ export function RadioSelect<T extends FieldValues>({
   direction?: "row" | "col";
   defvalue: string | boolean;
 }) {
+  // Set default value jika belum ada
   useEffect(() => {
-  if (form.getValues(name) === undefined) {
-    const valueToSet =
-      typeof defvalue === "string" ? defvalue === "true" : Boolean(defvalue);
-
-    form.setValue(name, valueToSet as PathValue<T, Path<T>>);
-  }
-}, [defvalue, form, name]);
+    if (form.getValues(name) === undefined) {
+      form.setValue(name, defvalue as PathValue<T, Path<T>>);
+    }
+  }, [defvalue, form, name]);
 
   return (
     <FormField
@@ -192,9 +190,18 @@ export function RadioSelect<T extends FieldValues>({
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             <RadioGroup
-              value={field.value?.toString()}
-              onValueChange={(val) => field.onChange(val === "true")}
-              className={cn(direction === "row" ? "flex gap-4" : "flex flex-col gap-2")}
+              value={String(field.value ?? "")}
+              onValueChange={(val) => {
+                // kalau defvalue boolean, convert balik, kalau tidak, biarin string
+                let parsedVal: any = val;
+                if (typeof defvalue === "boolean") {
+                  parsedVal = val === "true";
+                }
+                field.onChange(parsedVal);
+              }}
+              className={cn(
+                direction === "row" ? "flex gap-4" : "flex flex-col gap-2"
+              )}
             >
               {options.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">

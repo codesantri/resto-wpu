@@ -1,17 +1,17 @@
 import { DeleteModal } from "@/components/common/modals";
-import { Profile } from "@/types/auth";
 import { startTransition, useActionState, useEffect } from "react";
-import { deleteUser } from "./actions";
 import { IS_ACTION } from "@/constants/global-constant";
 import { toast } from "sonner";
+import { User } from "@/validations/user-validation";
+import { userDestroy } from "@/controllers/user-controller";
 
 export default function DeleteUser({ open, refetch, currentData, handleAction, }: {
     open: boolean;
     refetch: () => void;
-    currentData?: Profile;
+    currentData?: User;
     handleAction: (open:boolean) => void;
 }) {
-    const [deleteState, deleteAction, isPendingDelete] = useActionState(deleteUser, IS_ACTION);
+    const [deleteState, deleteAction, isPendingDelete] = useActionState(userDestroy, IS_ACTION);
     const onSubmit = () => {
         const formData = new FormData();
         formData.append('id', currentData!.id as string);

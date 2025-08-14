@@ -5,7 +5,6 @@ import DropdownAction from "@/components/common/dropdown-action";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { TABLE_HEADER_USER } from "@/constants/datatabel-constant";
 import useDataTable from "@/hooks/use-datatable";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +18,7 @@ import { capitalize } from "@/lib/utils";
 import { Profile } from "@/types/auth";
 import UpdateUser from "./update";
 import DeleteUser from "./delete";
+import { TABLE_HEADER_USER } from "@/tables/header-table";
 
 export default function UserManagement() {
     const supabase = createClient();

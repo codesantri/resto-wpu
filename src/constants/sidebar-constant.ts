@@ -9,22 +9,22 @@ export const SIDEBAR_MENU_LIST = {
         },
         {
             title: "Orders",
-            url: "/orders",
+            url: "/dashboard/orders",
             icon: Album,
         },
         {
             title: "Menus",
-            url: "/dashboard/menus",
+            url: "/dashboard/admin/menus",
             icon: SquareMenu,
         },
         {
             title: "Tables",
-            url: "/dashboard/table",
+            url: "/dashboard/admin/tables",
             icon: Armchair,
         },
         {
             title: "Users",
-            url: "/dashboard/users",
+            url: "/dashboard/admin/users",
             icon: Users,
         }
     ],

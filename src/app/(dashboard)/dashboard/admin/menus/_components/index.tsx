@@ -5,7 +5,6 @@ import DropdownAction from "@/components/common/dropdown-action";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { TABLE_HEADER_MENU } from "@/constants/datatabel-constant";
 import useDataTable from "@/hooks/use-datatable";
 import { createClient } from "@/lib/supabase/client";
 import { SquarePen, Trash } from "lucide-react";
@@ -20,6 +19,7 @@ import "react-image-lightbox/style.css";
 import CreateMenu from "./create";
 import UpdateMenu from "./update";
 import DeleteMenu from "./delete";
+import { TABLE_HEADER_MENU } from "@/tables/header-table";
 
 export default function MenuManagement() {
   const supabase = createClient();
@@ -93,11 +93,11 @@ export default function MenuManagement() {
       `${menu.discount}%`,
       <span
         className={cn(
-          "px-2 rounded-full text-white w-fit",
-          menu.is_available ? "bg-green-500" : "bg-red-500"
+          "px-2 py-1 rounded-full text-white w-fit",
+          menu.is_available ? "bg-success" : "bg-danger"
         )}
       >
-        {menu.is_available ? "Available" : "Not Available"}
+        {menu.is_available ? "Available" : "Unavailable"}
       </span>,
       <DropdownAction
         menu={[
@@ -115,7 +115,7 @@ export default function MenuManagement() {
           {
             label: (
               <span className="flex items-center gap-2">
-                <Trash className="text-red-600" />
+                <Trash className="text-danger" />
                 Delete
               </span>
             ),

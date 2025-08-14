@@ -67,6 +67,7 @@ export default function UpdateMenu({
     }
   }, [updateState]);
 
+
   useEffect(() => {
     if (currentData) {
         form.setValue("name", currentData.name as string ?? "");
@@ -86,8 +87,8 @@ export default function UpdateMenu({
         } else if (currentData.image_url instanceof File) {
             form.setValue("image_url", currentData.image_url);
             setPreview({
-            file: currentData.image_url,
-            displayUrl: URL.createObjectURL(currentData.image_url),
+              file: currentData.image_url,
+              displayUrl: URL.createObjectURL(currentData.image_url),
             });
         }
     }

@@ -1,23 +1,21 @@
-import { ICREATE_USER, IS_CREATE_USER, ROLE_LIST } from "@/constants/user-constans";
+import { INITIAL_USER,STATE_USER, } from "@/constants/user-constans";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Preview } from "@/types/general";
 import FormUser from "./form";
-import { CreateUserForm, createUserSchema } from "@/validations/user-validation";
-import { createUser } from "./actions";
+import { userCreateFormValidate } from "@/validations/user-validation";
+import { userStore } from "@/controllers/user-controller";
+
 
 export default function CreateUser({refetch}:{refetch:()=>void}) {
-  const form = useForm<CreateUserForm>({
-    resolver: zodResolver(createUserSchema),
-    defaultValues: ICREATE_USER,
+  const form = useForm({
+      resolver: zodResolver(userCreateFormValidate),
+      defaultValues: INITIAL_USER,
   });
-
-  const [createState, createAction, isPendingCreate] = useActionState(createUser,
-    IS_CREATE_USER
-  );
-
+  
+  const [createState, createAction, isPendingCreate] = useActionState(userStore, STATE_USER);
   const [preview, setPreview] = useState<Preview>();
 
   const onSubmit = form.handleSubmit(async (data) => {
