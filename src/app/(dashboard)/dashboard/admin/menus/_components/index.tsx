@@ -30,12 +30,14 @@ export default function MenuManagement() {
     queryFn: async () => {
       let query = supabase
         .from("menus")
-        .select("*", { count: "exact" })
+        .select("*, categories(name, id)", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
         .range(
           (currentPage - 1) * currentLimit,
           currentPage * currentLimit - 1
-        )
-        .order("created_at");
+        );
+
 
       if (currentSearch) {
         query = query.or(
@@ -72,7 +74,7 @@ export default function MenuManagement() {
   };
 
   const filterData = useMemo(() => {
-    return (menus?.data || []).map((menu: Menu, index) => [
+    return (menus?.data || []).map((menu, index) => [
       currentLimit * (currentPage - 1) + index + 1,
       <div
         className="flex items-center gap-2 cursor-pointer"
@@ -85,10 +87,12 @@ export default function MenuManagement() {
           width={60}
           height={60}
           className="rounded object-cover"
+          style={{ height: 'auto', width: 'auto' }}
         />
+
         {menu.name}
       </div>,
-      menu.category,
+      (menu.categories as unknown as {name:string}).name,
       IDR(menu.price),
       `${menu.discount}%`,
       <span
@@ -148,7 +152,7 @@ export default function MenuManagement() {
             <DialogTrigger asChild>
               <Button variant="default">+Create</Button>
             </DialogTrigger>
-            <CreateMenu refetch={refetch}/>
+            <CreateMenu refetch={refetch} />
           </Dialog>
         </div>
       </div>

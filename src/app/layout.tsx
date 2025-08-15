@@ -6,6 +6,7 @@ import AuthStoreProvider from "@/providers/auth-store-provider";
 import { cookies } from "next/headers";
 import ReactQueryProvider from "@/providers/react-query-provider";
 import "./globals.css";
+import RouteProgress from "@/components/common/RouteProgress";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <html lang="en" suppressHydrationWarning>
         <head />
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <RouteProgress />
           <AuthStoreProvider profile={profile}>
             <ReactQueryProvider>
               <ThemeProvider

@@ -15,7 +15,7 @@ export type MenuFormState = {
     errors?: {
         id?: string[];
         name?: string[];
-        category?: string[];
+        category_id?: string[];
         price?: string[];
         discount?: string[];
         description?: string[];
@@ -46,3 +46,12 @@ export type OrderFormState = {
         _form?: string[];
     };  
 };
+
+export type CategoryFormState = {
+    status?: string;
+    errors?: {
+        id?: string[];
+        name?: string[];
+        _form?: string[];
+    };
+}

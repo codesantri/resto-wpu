@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import AvatarName from "./avatar-name";
 import { signOut } from "@/controllers/auth-controller";
+import Link from "next/link";
 
 export default function AppSidebar() {
     const { isMobile } = useSidebar();
@@ -45,7 +46,7 @@ export default function AppSidebar() {
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader>
-                <SidebarMenu className="border-b-1 border-teal-600 w-full">
+                <SidebarMenu className="w-full">
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <div className="flex items-center gap-2 self-center font-medium">
@@ -54,10 +55,11 @@ export default function AppSidebar() {
                                 </div>
                                 <span className="text-2xl font-semibold">RESTOKU</span>
                             </div>
+                            
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
-                <SidebarMenu >
+                {/* <SidebarMenu >
                     <SidebarMenuItem>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -81,7 +83,7 @@ export default function AppSidebar() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </SidebarMenuItem>
-                </SidebarMenu>
+                </SidebarMenu> */}
             </SidebarHeader>
 
             <SidebarContent>
@@ -91,14 +93,14 @@ export default function AppSidebar() {
                             {SIDEBAR_MENU_LIST[profile.role as SidebarMenuKey]?.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild tooltip={item.title}>
-                                        <a href={item.url}
+                                        <Link href={item.url}
                                             className={cn('px-4 py-3 h-auto', {
                                                 'bg-teal-500 text-white hover:bg-teal-500 hover:text-white':pathname===item.url
                                             })}
                                         > 
-                                            {item.title && <item.icon />}
-                                            <span>{item.title}</span>
-                                        </a>
+                                            {item.title && <item.icon className="h-50 size-20 text-2xl" />}
+                                            <span className="font-bold tracking-wide [letter-spacing:0.05em]">{item.title}</span>
+                                        </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}

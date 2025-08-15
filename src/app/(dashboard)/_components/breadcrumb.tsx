@@ -1,6 +1,7 @@
 'use client';
 
 import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment } from "react";
 
@@ -15,9 +16,9 @@ export default function DashboardBreadcrumb() {
                     <Fragment key={`path-${path}`}>
                         <BreadcrumbItem>
                             {index < paths.length - 1 ? (
-                                    <BreadcrumbLink href={`/${paths.slice(0, index + 1).join('/')}`} className="capitalize">
+                                    <Link href={`/${paths.slice(0, index + 1).join('/')}`} className="capitalize">
                                         {path}
-                                    </BreadcrumbLink>
+                                    </Link>
                             ) : (
                                 <BreadcrumbPage className="capitalize">
                                         {path}

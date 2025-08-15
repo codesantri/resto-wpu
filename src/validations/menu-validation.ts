@@ -5,7 +5,7 @@ export const menuSchema = z.object({
   description: z.string(),
   price: z.number(),
   discount: z.number(),
-  category: z.string(),
+  category_id: z.string(),
   image_url: z.union([
     z.string(),
     z.instanceof(File),
@@ -18,11 +18,12 @@ export const menuFormValidate = z.object({
   description: z.string().min(1, 'Description is required'),
   price: z.preprocess((val) => Number(val), z.number().min(1, 'Price is required')),
   discount: z.preprocess((val) => Number(val), z.number().min(0, 'Discount is required')),
-  category: z.string().min(1, 'Category is required'),
+  category_id: z.string().min(1, 'Category is required'),
   image_url: z.union([
-    z.string().min(1, 'Image is Required'),
+    z.string().url().or(z.literal('')), // "" biar aman kalau nggak upload baru
     z.instanceof(File)
   ]).optional(),
+
   is_available: z.preprocess(
     (val) => val === 'true' || val === true,
     z.boolean()

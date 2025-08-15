@@ -15,7 +15,7 @@ export async function menuStore(prevState: MenuFormState, formData: FormData | n
 
     let validatedFields = menuSchema.safeParse({
         name: formData.get('name'),
-        category: formData.get('category'),
+        category_id: formData.get('category_id'),
         price: parseFloat(formData.get('price') as string),
         discount: parseFloat(formData.get('discount') as string),
         is_available: formData.get('is_available') === 'true' ? true : false,
@@ -57,7 +57,7 @@ export async function menuStore(prevState: MenuFormState, formData: FormData | n
 
     const { error } = await supabase.from('menus').insert({
         name: validatedFields.data.name,
-        category: validatedFields.data.category,
+        category_id: validatedFields.data.category_id,
         price: validatedFields.data.price,
         discount: validatedFields.data.discount,
         is_available: validatedFields.data.is_available,
@@ -81,79 +81,106 @@ export async function menuStore(prevState: MenuFormState, formData: FormData | n
     
 }
 
-export  async function menuUpdate(prevState: MenuFormState, formData: FormData | null) {
+export async function menuUpdate(prevState: MenuFormState, formData: FormData | null) {
     if (!formData) {
         return STATE_MENU;
     }
 
-    let validatedFields = menuSchema.safeParse({
-         name: formData.get('name'),
-        category: formData.get('category'),
+    // 1. Validasi ID terlebih dahulu
+    const id = formData.get('id');
+    if (!id) {
+        return {
+            status: 'error',
+            errors: {
+                _form: ['ID is required for update'],
+            },
+        };
+    }
+
+    // 2. Ambil file image langsung dari FormData
+    const imageFile = formData.get('image_url');
+    const oldImageUrl = formData.get('old_image_url') as string;
+
+    // 3. Validasi data input
+    const validatedFields = menuSchema.safeParse({
+        name: formData.get('name'),
+        category_id: formData.get('category_id'),
         price: parseFloat(formData.get('price') as string),
         discount: parseFloat(formData.get('discount') as string),
-        is_available: formData.get('is_available') === 'true' ? true : false,
-        image_url: formData.get('image_url'),
+        is_available: formData.get('is_available') === 'true',
+        image_url: imageFile, // Gunakan langsung dari FormData
         description: formData.get('description'),
-    })
+    });
 
-     if (!validatedFields.success) {
+    if (!validatedFields.success) {
         return {
             status: 'error',
             errors: {
                 ...validatedFields.error.flatten().fieldErrors,
-                _form:[],
+                _form: [],
             },
-        }
-     }
-    
-    if (validatedFields.data.image_url instanceof File) {
-        const oldVatarUrl = formData.get('old_image_url') as string;
+        };
+    }
 
-        const { errors, data } = await storage.upload('images', 'menus', validatedFields.data.image_url, oldVatarUrl.split('/images/')[1]);
+    let imageUrl = validatedFields.data.image_url;
+
+    // 4. Handle file upload jika ada file baru
+    if (imageFile instanceof File && imageFile.size > 0) {
+        if (!oldImageUrl) {
+            return {
+                status: 'error',
+                errors: {
+                    _form: ['Old image URL is required for update'],
+                },
+            };
+        }
+
+        const { errors, data } = await storage.upload(
+            'images',
+            'menus',
+            imageFile,
+            oldImageUrl.split('/images/')[1]
+        );
+
         if (errors) {
             return {
                 status: 'error',
                 errors: {
-                    ...prevState.errors,
-                _form: [...errors._form],
+                    _form: errors._form,
                 },
-                }
-            }
-        validatedFields = {
-            ...validatedFields,
-            data: {
-                ...validatedFields.data,
-                image_url:data.url,
-            }
+            };
         }
+
+        imageUrl = data.url;
     }
-    
+
+    // 5. Update data ke database
     const supabase = await createClient();
+    const { error } = await supabase
+        .from('menus')
+        .update({
+            name: validatedFields.data.name,
+            category_id: validatedFields.data.category_id,
+            price: validatedFields.data.price,
+            discount: validatedFields.data.discount,
+            is_available: validatedFields.data.is_available,
+            image_url: imageUrl,
+            description: validatedFields.data.description,
+        })
+        .eq('id', id);
 
-    const { error } = await supabase.from('menus').update({
-        name: validatedFields.data.name,
-        category: validatedFields.data.category,
-        price: validatedFields.data.price,
-        discount: validatedFields.data.discount,
-        is_available: validatedFields.data.is_available,
-        image_url: validatedFields.data.image_url,
-        description: validatedFields.data.description,
-    }).eq('id', formData.get('id'));
-
-      if (error) {
+    if (error) {
         return {
             status: 'error',
             errors: {
-                ...prevState.errors,
-                _form: [error.message]
+                _form: [error.message],
             },
-        };  
-      }
-    
+        };
+    }
+
     return {
         status: 'success',
     };
-    
 }
 
 

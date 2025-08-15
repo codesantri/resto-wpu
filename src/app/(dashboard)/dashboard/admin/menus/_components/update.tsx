@@ -8,19 +8,21 @@ import { Menu, menuFormValidate } from "@/validations/menu-validation";
 import { STATE_MENU } from "@/constants/menu-constant";
 import FormMenu from "./form";
 import { menuUpdate } from "@/controllers/menu-controller";
+import { Category } from "@/validations/category-validation";
 
+interface UpdateMenuProps{
+  refetch: () => void;
+  currentData?: Menu;
+  open?: boolean;
+  handleChangeAction?: (open: boolean) => void;
+}
 
 export default function UpdateMenu({
   refetch,
   currentData,
   handleChangeAction,
-  open
-}: {
-  refetch: () => void;
-  currentData?: Menu;
-  open?: boolean;
-  handleChangeAction?: (open: boolean) => void;
-}) {
+  open,
+}: UpdateMenuProps) {
   const form = useForm({
     resolver: zodResolver(menuFormValidate),
   });
@@ -43,9 +45,11 @@ export default function UpdateMenu({
 
     formData.append("id", currentData?.id ?? "");
     formData.append("old_image_url", currentData?.image_url ?? "");
+
     startTransition(() => {
       updateAction(formData);
     });
+    
   });
 
 
@@ -74,7 +78,7 @@ export default function UpdateMenu({
         form.setValue("description", currentData.description as string ?? "");
         form.setValue("price", currentData.price ?? 0);
         form.setValue("discount", currentData.discount as number ?? 0);
-        form.setValue("category", currentData.category as string);
+        form.setValue("category_id", String(currentData.category_id ?? ""));
         form.setValue("is_available", Boolean(currentData.is_available));
 
         // Set image_url sesuai tipe di schema
@@ -93,6 +97,8 @@ export default function UpdateMenu({
         }
     }
   }, [currentData, form]);
+
+  
 
   return (
     <Dialog open={open} onOpenChange={handleChangeAction}>

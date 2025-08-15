@@ -7,10 +7,14 @@ import {menuFormValidate} from "@/validations/menu-validation";
 import { INITIAL_MENU, STATE_MENU, } from "@/constants/menu-constant";
 import FormMenu from "./form";
 import { menuStore } from "@/controllers/menu-controller";
+import { Category } from "@/validations/category-validation";
 
 
+interface CreateMenuProps{
+  refetch: () => void;
+}
 
-export default function CreateMenu({refetch}:{refetch:()=>void}) {
+export default function CreateMenu({refetch}: CreateMenuProps ) {
   const form = useForm({
     resolver: zodResolver(menuFormValidate),
     defaultValues: INITIAL_MENU
@@ -36,6 +40,7 @@ export default function CreateMenu({refetch}:{refetch:()=>void}) {
     startTransition(() => {
       createAction(formData);
     });
+    
   });
 
   useEffect(() => {

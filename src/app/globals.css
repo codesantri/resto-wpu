@@ -8,7 +8,7 @@
   /* green-500 */
   --color-info: oklch(58.8% 0.158 241.966);
   /* blue-500 */
-  --color-primary: oklch(54.6% 0.245 262.881);
+  --color-blue: oklch(54.6% 0.245 262.881);
   /* indigo-500 */
   --color-warning: oklch(75% 0.183 55.934);
   /* amber-500 */
@@ -145,4 +145,6 @@
       -webkit-appearance: none;
       margin: 0;
     }
+
+       
 }

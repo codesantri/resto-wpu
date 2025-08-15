@@ -2,7 +2,7 @@ import { MenuForm } from "@/validations/menu-validation";
 
 export const INITIAL_MENU:MenuForm = {
  name: "",
-  category: "",
+  category_id: "",
   price: 0,
   discount: 0,
   is_available: true,
@@ -14,7 +14,7 @@ export const STATE_MENU = {
   status: 'idle',
   errors: {
     name: [],
-    category: [],
+    category_id: [],
     price: [],
     discount: [],
     is_available: [],

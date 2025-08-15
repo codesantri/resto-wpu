@@ -1,16 +1,17 @@
-import { Album, Armchair, LayoutDashboard, SquareMenu, Users } from "lucide-react"
+import { Album, AppWindow, Armchair, LayoutDashboard, SquareMenu, Users } from "lucide-react"
 
 export const SIDEBAR_MENU_LIST = {
     admin: [
         {
             title: "Dashboard",
             url: "/dashboard",
-            icon: LayoutDashboard,
+            icon: AppWindow,
+            
         },
         {
-            title: "Orders",
-            url: "/dashboard/orders",
-            icon: Album,
+            title: "Categories",
+            url: "/dashboard/admin/categories",
+            icon: LayoutDashboard,
         },
         {
             title: "Menus",
@@ -21,6 +22,11 @@ export const SIDEBAR_MENU_LIST = {
             title: "Tables",
             url: "/dashboard/admin/tables",
             icon: Armchair,
+        },
+        {
+            title: "Orders",
+            url: "/dashboard/orders",
+            icon: Album,
         },
         {
             title: "Users",

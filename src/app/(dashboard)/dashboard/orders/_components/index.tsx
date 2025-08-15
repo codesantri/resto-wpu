@@ -33,22 +33,15 @@ export default function OrderManagement() {
     currentSearch,
     handleChangePage,
     handleChangeLimit,
-    handleChangeSearch,
+    handleChangeSearch
   } = useDataTable();
-
-  const [selectedAction, setSelectedAction] = useState<{
-    data: Order;
-    type: "update" | "delete";
-  } | null>(null);
 
   const { data: orders, isLoading, refetch } = useQuery({
     queryKey: ["orders", currentPage, currentLimit, currentSearch],
     queryFn: async () => {
       let query = supabase
         .from("orders")
-        .select(
-          `id, order_id, customer_name, status, payment_url, tables(name, id)`,
-          { count: "exact" }
+        .select(`id, order_id, customer_name, status, payment_url, tables(name, id)`,{ count: "exact" }
         )
         .range(
           (currentPage - 1) * currentLimit,
@@ -74,6 +67,11 @@ export default function OrderManagement() {
       return { data, count };
     },
   });
+
+  const [selectedAction, setSelectedAction] = useState<{
+    data: Order;
+    type: "update" | "delete";
+  } | null>(null);
 
   const handleChangeAction = (open: boolean) => {
     if (!open) setSelectedAction(null);
@@ -219,7 +217,7 @@ const filterData = useMemo(() => {
                 {
                   label: (
                     <Link
-                      href={`/order/${item.order_id}`}
+                      href={`/dashboard/orders/${item.order_id}`}
                       className="flex items-center gap-2"
                     >
                       <ScrollText />
