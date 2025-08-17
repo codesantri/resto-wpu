@@ -9,7 +9,7 @@ create table public.orders (
   id serial not null,
   customer_name text,
   status text,
-  payment_url text,
+  payment_token text,
   table_id integer references tables on delete set null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
@@ -37,7 +37,7 @@ alter table public.order_menus enable row level security;
 -- Create Data
 
 -- Insert ke tabel orders
-INSERT INTO public.orders (customer_name, status, payment_url, table_id)
+INSERT INTO public.orders (customer_name, status, payment_token, table_id)
 VALUES
 ('John Doe', 'pending', 'https://payment.example.com/order/1', 1),
 ('Jane Smith', 'paid', 'https://payment.example.com/order/2', 2),

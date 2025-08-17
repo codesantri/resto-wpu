@@ -145,6 +145,17 @@
       -webkit-appearance: none;
       margin: 0;
     }
-
-       
+    
+        /* styles/globals.css */
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+          /* Chrome, Safari, Opera */
+        }
+    
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          /* IE & Edge */
+          scrollbar-width: none;
+          /* Firefox */
+        }
 }

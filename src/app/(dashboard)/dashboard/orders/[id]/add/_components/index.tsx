@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import useDataTable from "@/hooks/use-datatable";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -9,9 +8,13 @@ import OrderCart from "./cart";
 import { Input } from "@/components/ui/input";
 import CardMenu from "./card-menu";
 import LoadingCardMenu from "./loading-card-menu";
-import { useState } from "react";
 import { Cart } from "@/types/order-cart";
 import { Menu } from "@/validations/menu-validation";
+import { Separator } from "@radix-ui/react-dropdown-menu";
+import CategoryFilter from "./category-filter";
+import { startTransition, useActionState, useState } from "react";
+import { IS_ACTION } from "@/constants/global-constant";
+import { orderAddMenu } from "@/controllers/order-controller";
 
 export default function OrderAdd({ id }: { id: string }) {
   const supabase = createClient();
@@ -71,7 +74,7 @@ export default function OrderAdd({ id }: { id: string }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, customer_name, status, payment_url, tables(name, id)")
+        .select("id, customer_name, status, payment_token, tables(name, id)")
         .eq("order_id", id)
         .single();
 
@@ -85,6 +88,8 @@ export default function OrderAdd({ id }: { id: string }) {
   });
 
   const [carts, setCarts] = useState<Cart[]>([]);
+  console.log(carts);
+  
 
   const handleAddToCart = (menu: Menu, action: 'inc' | 'dec') => {
     const existingItem = carts.find((item) => item.menu_id === menu.id);
@@ -103,45 +108,60 @@ export default function OrderAdd({ id }: { id: string }) {
     }
   }
 
+  const handleRemoveItemCart = (id: string) => {
+    setCarts((prevCarts) => prevCarts.filter((item) => item.menu_id !== id));
+  };
+
+   const [orderAddState, addOrderAction, isAddOrderPending] = useActionState(orderAddMenu, IS_ACTION);
+  
+    const handleAddOrder = async () => {
+      const data = {
+        order_id: id,
+        items: carts.map((item) => ({
+          order_id:order?.id ??'',
+          ...item,
+          status: "pending",
+        })),
+      };
+
+      startTransition(() => {
+        addOrderAction(data);
+      });
+    };
+
+
   return (
     <div className="w-full px-4 md:px-8 lg:px-12">
       <div className="flex items-center justify-between w-full gap-4 mb-4">
         <h1 className="text-2xl font-bold">Menu Lists</h1>
-        <Input
+        {/* <Input
         className="lg:w-2/3"
               placeholder="Search a menu..."
               onChange={(e) => handleChangeSearch(e.target.value)}
-            />
+            /> */}
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 w-full">
+      <div className="flex flex-col lg:flex-row gap-4 w-full lg:justify-between">
         <div className="space-y-4 lg:w-2/3">
-          {/* Filter & Search */}
-          <div className="flex flex-col lg:flex-row items-center gap-4 w-full justify-between">
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                className="cursor-pointer"
-                onClick={() => handleChangeFilter("")}
-                variant={currentFilter === "" ? "default" : "outline"}
-              >
-                All
-              </Button>
-              {!isLoadingCategory &&
-                categories.map((category) => (
-                  <Button
-                    className="cursor-pointer"
-                    key={category.id}
-                    onClick={() => handleChangeFilter(category.id)}
-                    variant={currentFilter === category.id ? "default" : "outline"}
-                  >
-                    {category.name}
-                  </Button>
-                ))}
-            </div>
-            
-          </div>
+          {/* Filter */}
+         <div className="flex flex-col lg:flex-row items-center gap-4 w-full justify-between">
+          {/* Filter Categories */}
+            <CategoryFilter
+              categories={categories}
+              currentFilter={currentFilter}
+              onChangeFilter={handleChangeFilter}
+            />
+          <Input
+            className="lg:w-1/3"
+            placeholder="Search a menu..."
+            onChange={(e) => handleChangeSearch(e.target.value)}
+          />
+        </div>
+
+
 
           {/* Menus Grid */}
+          <Separator className="w-full my-5 bg-muted"/>
           <div className="grid grid-cols-2 lg:grid-cols-3 w-full gap-4">
             {isLoadingMenu ? (
               <LoadingCardMenu />
@@ -157,7 +177,15 @@ export default function OrderAdd({ id }: { id: string }) {
 
         {/* Cart */}
         <div className="lg:w-1/3">
-          <OrderCart order={order} carts={carts} setCarts={setCarts} onAddToCart={handleAddToCart} />
+          <OrderCart
+            order={order}
+            carts={carts}
+            setCarts={setCarts}
+            onAddToCart={handleAddToCart}
+            removeItemCart={handleRemoveItemCart}
+            isLoading={isAddOrderPending}
+            onAddOrder={handleAddOrder}
+          />
         </div>
       </div>
     </div>

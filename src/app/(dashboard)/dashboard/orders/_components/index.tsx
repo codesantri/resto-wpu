@@ -41,7 +41,7 @@ export default function OrderManagement() {
     queryFn: async () => {
       let query = supabase
         .from("orders")
-        .select(`id, order_id, customer_name, status, payment_url, tables(name, id)`,{ count: "exact" }
+        .select(`id, order_id, customer_name, status, payment_token, tables(name, id)`,{ count: "exact" }
         )
         .range(
           (currentPage - 1) * currentLimit,

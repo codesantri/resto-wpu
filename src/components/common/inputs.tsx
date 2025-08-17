@@ -30,7 +30,7 @@ export  function TextInput<T extends FieldValues>({
                 <FormLabel>{label}</FormLabel>
                 <FormControl>
                     {type === "textarea" ? (
-                        <Textarea {...rest} placeholder={ph} autoComplete="off" className="resize-none" />
+                        <Textarea {...rest} placeholder={ph} autoComplete="off" autoFocus className="resize-none" />
                     ) : (
                         <Input {...rest} type={type} placeholder={ph}  />    
                     )}

@@ -4,7 +4,9 @@ import { STATE_ORDER } from "@/constants/order-constant";
 import { createClient } from "@/lib/supabase/server";
 import { OrderFormState} from "@/types/form-states";
 import { FormState } from "@/types/general";
+import { Cart } from "@/types/order-cart";
 import { orderFormValidate } from "@/validations/order-validation";
+import { redirect } from "next/navigation";
 
 export async function orderStore(prevState: OrderFormState, formData: FormData | null) {
     if (!formData) {
@@ -107,6 +109,47 @@ export async function orderStatusUpdate(prevState: FormState, formData: FormData
     return {
         status: 'success',
     };
+}
+
+export async function orderAddMenu(prevState: FormState, data: { order_id: string; items: Cart[] }) {
+    const supabase = await createClient();
+    const payload = data.items.map(({ total, menu, ...item }) => ({ ...item }));
+    const { error } = await supabase.from("order_menus").insert(payload);
+    if (error) {
+        console.error("Insert failed:", error.message);
+        return {
+            status: "error",
+            errors: {
+                ...prevState.errors,
+                _form: [error.message],
+            },
+        };
+    }
+    return redirect(`/dashboard/orders/${data.order_id}`);
+}
+
+export async function orderUpdateStatusItem(prevState: FormState, formData: FormData) {
+    const supabase = await createClient();
+    
+    const { error } = await supabase.from('order_menus').update({
+        status: formData.get('status'),
+    }).eq('id', formData.get('id'));
+
+    if (error) {
+        console.error("Insert failed:", error.message);
+        return {
+            status: "error",
+            errors: {
+                ...prevState.errors,
+                _form: [error.message],
+            },
+        };
+    }
+
+    return {
+        status: 'success',
+    };
+
 }
 
 // export  async function tableUpdate(prevState: TableFormState, formData: FormData | null) {

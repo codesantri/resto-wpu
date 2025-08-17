@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
 import { Card } from "../ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import PaginationDatatable from "./pagination-datatable";
 import { Label } from "../ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
 import { LIMIT_LISTS } from "@/tables/pagination-table";
+import PaginationDatatable from "./pagination-datatable";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
 
 type DataTableProps = {
   header?: string[];
@@ -69,7 +69,7 @@ export default function DataTable(
                       key={`tc-${rowIndex}-${cellIndex}`}
                       className={`px-6 py-3 ${
                         cellIndex === 0 ? "w-[100px]" : ""
-                      } ${cellIndex === row.length - 1 ? "text-right" : ""}`}
+                      } ${cellIndex === row.length - 1 ? "text-right float-end" : ""}`}
                     >
                       {item}
                     </TableCell>
