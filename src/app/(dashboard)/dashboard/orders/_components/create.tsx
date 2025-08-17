@@ -14,11 +14,11 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CreateTableProps {
-  refetch: () => void;
+
   tables: Table[] | undefined | null;
 }
 
-export default function CreateOrder({ refetch, tables }: CreateTableProps) {
+export default function CreateOrder({tables }: CreateTableProps) {
   const form = useForm({
     resolver: zodResolver(orderFormValidate),
     defaultValues: INITIAL_ORDER,
@@ -57,10 +57,8 @@ export default function CreateOrder({ refetch, tables }: CreateTableProps) {
           '[data-state="open"] [data-slot="dialog-close"]'
         )
         ?.click();
-
-      refetch();
     }
-  }, [createState, form, refetch]);
+  }, [createState, form]);
 
   const TextStatus = ({ val }: { val: string }) => {
     return (

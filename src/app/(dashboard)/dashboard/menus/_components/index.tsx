@@ -14,8 +14,8 @@ import Image from "next/image";
 import { cn, IDR } from "@/lib/utils";
 import { Menu } from "@/validations/menu-validation";
 import { useQuery } from "@tanstack/react-query";
-import Lightbox from "react-image-lightbox";
-import "react-image-lightbox/style.css";
+// import Lightbox from "react-image-lightbox";
+// import "react-image-lightbox/style.css";
 import CreateMenu from "./create";
 import UpdateMenu from "./update";
 import DeleteMenu from "./delete";
@@ -56,7 +56,7 @@ export default function MenuManagement() {
   });
 
   // State untuk Lightbox
-  const [lightboxIndex, setLightboxIndex] = useState<number>(-1);
+  // const [lightboxIndex, setLightboxIndex] = useState<number>(-1);
 
   // Ambil data gambar
   const images = (menus?.data || []).map((menu: Menu) => ({
@@ -79,7 +79,7 @@ export default function MenuManagement() {
       <div
         className="flex items-center gap-2 cursor-pointer"
         key={`image-${menu.id}`}
-        onClick={() => setLightboxIndex(index)}
+        // onClick={() => setLightboxIndex(index)}
       >
         <Image
           src={menu.image_url as string || ""}
@@ -183,7 +183,7 @@ export default function MenuManagement() {
       />
 
       {/* Lightbox */}
-      {lightboxIndex >= 0 && (
+      {/* {lightboxIndex >= 0 && (
         <Lightbox
           mainSrc={images[lightboxIndex].src}
           imageTitle={images[lightboxIndex].title}
@@ -199,7 +199,7 @@ export default function MenuManagement() {
             )
           }
         />
-      )}
+      )} */}
     </div>
   );
 }

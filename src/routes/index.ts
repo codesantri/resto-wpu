@@ -1,6 +1,6 @@
 import { Album, AppWindow, Armchair, LayoutDashboard, SquareMenu, Users } from "lucide-react"
 
-export const SIDEBAR_MENU_LIST = {
+export const ROUTES = {
     admin: [
         {
             title: "Dashboard",
@@ -10,17 +10,17 @@ export const SIDEBAR_MENU_LIST = {
         },
         {
             title: "Categories",
-            url: "/dashboard/admin/categories",
+            url: "/dashboard/categories",
             icon: LayoutDashboard,
         },
         {
             title: "Menus",
-            url: "/dashboard/admin/menus",
+            url: "/dashboard/menus",
             icon: SquareMenu,
         },
         {
             title: "Tables",
-            url: "/dashboard/admin/tables",
+            url: "/dashboard/tables",
             icon: Armchair,
         },
         {
@@ -30,7 +30,7 @@ export const SIDEBAR_MENU_LIST = {
         },
         {
             title: "Users",
-            url: "/dashboard/admin/users",
+            url: "/dashboard/users",
             icon: Users,
         }
     ],
@@ -39,4 +39,4 @@ export const SIDEBAR_MENU_LIST = {
     kitchen:[],
 };
 
-export type SidebarMenuKey= keyof typeof SIDEBAR_MENU_LIST
+export type RoutesKey = keyof typeof ROUTES;

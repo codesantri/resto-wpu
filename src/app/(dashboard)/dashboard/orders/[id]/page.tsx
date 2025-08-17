@@ -11,7 +11,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     return (
         <>
             <Script
-                src={`${environment.MIDTRANS_URL}/snap/snap.js`}
+                src="https://app.sandbox.midtrans.com/snap/snap.js"
                 data-client-key={`${environment.MIDTRANS_CLIENT_KEY}`}
                 strategy="lazyOnload"
             />

@@ -88,7 +88,6 @@ export default function OrderAdd({ id }: { id: string }) {
   });
 
   const [carts, setCarts] = useState<Cart[]>([]);
-  console.log(carts);
   
 
   const handleAddToCart = (menu: Menu, action: 'inc' | 'dec') => {

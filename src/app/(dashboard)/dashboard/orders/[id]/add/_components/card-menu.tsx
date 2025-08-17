@@ -8,7 +8,14 @@ import Image from "next/image";
 export default function CardMenu({ menu, onAddToCart }: { menu: Menu; onAddToCart: (item:Menu, type:'dec'|'inc')=>void;}) {
     return (
         <Card key={menu.id} className="w-full h-fit border shadow-sm p-0 gap-0">
-            <Image src={`${menu.image_url}`} alt={menu.name} width={300} height={300} className="w-full lg:h-[200px] md:h-[150px] h-[100px] object-cover rounded-t-lg" />
+            <Image
+                src={`${menu.image_url}`}
+                alt={menu.name}
+                width={300}
+                height={300}
+                className="w-full lg:h-[200px] md:h-[150px] h-[100px] object-cover rounded-t-lg"
+                priority={true}
+            />
             <CardContent className="px-4 py-2">
                 <h1 className="lg:text-lg  font-semibold">{menu.name}</h1>
                 <p className="text-sm text-muted-foreground line-clamp-2">{menu.description}</p>

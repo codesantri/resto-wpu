@@ -31,13 +31,13 @@ import {
     LogOut,
     Slack
 } from "lucide-react";
-import { SIDEBAR_MENU_LIST, SidebarMenuKey } from "@/constants/sidebar-constant";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import AvatarName from "./avatar-name";
 import { signOut } from "@/controllers/auth-controller";
 import Link from "next/link";
+import { ROUTES, RoutesKey } from "@/routes";
 
 export default function AppSidebar() {
     const { isMobile } = useSidebar();
@@ -90,7 +90,7 @@ export default function AppSidebar() {
                 <SidebarGroup>
                     <SidebarGroupContent className="flex flex-col gap-2">
                         <SidebarMenu>
-                            {SIDEBAR_MENU_LIST[profile.role as SidebarMenuKey]?.map((item) => (
+                            {ROUTES[profile.role as RoutesKey]?.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild tooltip={item.title}>
                                         <Link href={item.url}

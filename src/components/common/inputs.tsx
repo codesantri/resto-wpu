@@ -206,6 +206,7 @@ export function RadioSelect<T extends FieldValues>({
               {options.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">
                   <RadioGroupItem
+                    className="cursor-pointer"
                     value={option.value}
                     id={`${name}-${option.value}`}
                     disabled={option.disabled}

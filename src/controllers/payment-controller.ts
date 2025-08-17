@@ -1,7 +1,7 @@
+"use server";
 import { environment } from "@/config/environment";
 import { createClient } from "@/lib/supabase/client";
 import { FormState } from "@/types/general";
-
 import midtrans from "midtrans-client";
 
 export async function generatePaymentToken(prevState: FormState, formData: FormData) {
@@ -10,7 +10,6 @@ export async function generatePaymentToken(prevState: FormState, formData: FormD
     const orderId = formData.get("id") as string | null;
     const grossAmount = formData.get("gross_amount") as string | null;
     const customerName = formData.get("customer_name") as string | null;
-
     if (!orderId || !grossAmount || !customerName) {
         return {
             status: "error",
@@ -26,13 +25,13 @@ export async function generatePaymentToken(prevState: FormState, formData: FormD
 
     const snapPay = new midtrans.Snap({
         isProduction: false,
-        serverKey: environment.MIDTRANS_SERVER_KEY,
+        serverKey: environment.MIDTRANS_SERVER_KEY, // ✅ hanya serverKey
     });
 
     const params = {
         transaction_details: {
             order_id: orderId,
-            gross_amount: parseFloat(grossAmount), // ✅ pakai gross_amount
+            gross_amount: parseInt(grossAmount as string),
         },
         customer_details: {
             first_name: customerName,
@@ -41,6 +40,10 @@ export async function generatePaymentToken(prevState: FormState, formData: FormD
 
     try {
         const result = await snapPay.createTransaction(params);
+
+        console.log('====================================');
+        console.log(result);
+        console.log('====================================');
 
         if (result.error_messages) {
             return {
@@ -55,7 +58,6 @@ export async function generatePaymentToken(prevState: FormState, formData: FormD
             };
         }
 
-        // ✅ update token ke Supabase
         await supabase
             .from("orders")
             .update({ payment_token: result.token })
@@ -64,7 +66,7 @@ export async function generatePaymentToken(prevState: FormState, formData: FormD
         return {
             status: "success",
             data: {
-                payment_token: result.token, // ✅ pakai ":" bukan "="
+                payment_token: result.token,
             },
         };
     } catch (error: any) {
