@@ -43,8 +43,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                 enableSystem
                 disableTransitionOnChange
               >
+                <Toaster position="top-right"/>
                 {children}
-                <Toaster/>
               </ThemeProvider>
             </ReactQueryProvider>
           </AuthStoreProvider>

@@ -5,30 +5,30 @@ import {
   useActionState,
   useEffect,
   useMemo,
+  useState,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Ban, Link2Icon, Loader2, ScrollText } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import DataTable from "@/components/common/datatable";
-import DropdownAction from "@/components/common/dropdown-action";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import useDataTable from "@/hooks/use-datatable";
 import { TABLE_HEADER_ORDER } from "@/tables/header-table";
-import { Order } from "@/validations/order-validation";
-import CreateOrder from "./create";
 import { orderStatusUpdate } from "@/controllers/order-controller";
 import { IS_ACTION } from "@/constants/global-constant";
 import createClientRealtime from "@/lib/supabase/realtime";
+import { Badge } from "@/components/ui/badge";
+import CreateOrder from "./create";
+import { redirect } from "next/navigation";
 
 export default function OrderManagement() {
   const supabase = createClientRealtime();
 
-  // Pagination & Search hook
+  // Pagination & Search
   const {
     currentPage,
     currentLimit,
@@ -38,9 +38,7 @@ export default function OrderManagement() {
     handleChangeSearch,
   } = useDataTable();
 
-  // ==========================
-  // Fetch Orders
-  // ==========================
+  // Orders
   const {
     data: orders,
     isLoading,
@@ -58,7 +56,7 @@ export default function OrderManagement() {
           (currentPage - 1) * currentLimit,
           currentPage * currentLimit - 1
         )
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false });
 
       if (currentSearch) {
         query = query.or(
@@ -77,18 +75,14 @@ export default function OrderManagement() {
     },
   });
 
-  // ==========================
-  // Fetch Tables
-  // ==========================
+  // Tables
   const { data: tables, refetch: refetchTables } = useQuery({
     queryKey: ["tables"],
     queryFn: async () => {
       const { data } = await supabase
         .from("tables")
         .select("*")
-        .order("created_at", { ascending: true })
-        .order("status");
-
+        .order("name", { ascending: true });
       return data;
     },
   });
@@ -96,10 +90,11 @@ export default function OrderManagement() {
   // ==========================
   // Update Status
   // ==========================
-  const [statusState, statusAction, isUpdateStatus] = useActionState(
+  const [statusState, statusAction] = useActionState(
     orderStatusUpdate,
     IS_ACTION
   );
+  const [loadingAction, setLoadingAction] = useState<null | { id: string; status: string }>(null);
 
   useEffect(() => {
     if (statusState?.status === "error") {
@@ -112,68 +107,30 @@ export default function OrderManagement() {
       refetchOrder();
       refetchTables();
     }
+    // reset loader
+    setLoadingAction(null);
   }, [statusState, refetchOrder, refetchTables]);
 
-  const handleUpdateStatus = ({
-    id,
-    table_id,
-    status,
-  }: {
-    id: string;
-    table_id: string;
-    status: string;
-  }) => {
+  const handleUpdateStatus = ({ id, order_id, table_id, status, }: { id: string; order_id?: string|null|undefined; table_id: string; status: string;}) => {
     const formData = new FormData();
     Object.entries({ id, table_id, status }).forEach(([key, value]) => {
       formData.append(key, value);
     });
 
+    setLoadingAction({ id, status });
     startTransition(() => {
       statusAction(formData);
     });
+    if (status=="process") {
+      return redirect(`/dashboard/orders/${order_id}`)
+    }
+
   };
 
   // ==========================
   // Table Data
   // ==========================
   const filterData = useMemo(() => {
-    const statusActionList = [
-      {
-        label: (
-          <span className="flex items-center gap-2">
-            {isUpdateStatus ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <>
-                <Link2Icon /> Process
-              </>
-            )}
-          </span>
-        ),
-        action: (id: string, table_id: string) =>
-          handleUpdateStatus({ id, table_id, status: "process" }),
-        type: "button" as const,
-        variant: "default" as const,
-      },
-      {
-        label: (
-          <span className="flex items-center gap-2 text-danger">
-            {isUpdateStatus ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <>
-                <Ban /> Cancel
-              </>
-            )}
-          </span>
-        ),
-        action: (id: string, table_id: string) =>
-          handleUpdateStatus({ id, table_id, status: "canceled" }),
-        type: "button" as const,
-        variant: "destructive" as const,
-      },
-    ];
-
     return (
       orders?.data?.map((item, index) => {
         const table = item.tables as unknown as { id: string; name: string };
@@ -183,54 +140,86 @@ export default function OrderManagement() {
           item.order_id,
           item.customer_name,
           table?.name || "-",
-
-          // Status Badge
-          <span
-            key={`status-${item.id}`}
-            className={cn(
-              "px-2 py-1 rounded-full text-white w-fit capitalize",
-              {
-                "bg-success": item.status === "settled",
-                "bg-info": item.status === "process",
-                "bg-warning": item.status === "reserved",
-                "bg-danger": item.status === "canceled",
-              }
-            )}
+          <Badge
+            className="capitalize"
+            key={item.id}
+            variant={
+              item.status === "reserved"
+                ? "warning"
+                : item.status === "process"
+                ? "info"
+                : item.status === "canceled"
+                ? "destructive"
+                : item.status === "settled"
+                ? "success"
+                : "secondary"
+            }
           >
             {item.status}
-          </span>,
-
-          // Dropdown Action
-          <DropdownAction
-            key={`action-${item.id}`}
-            menu={[
-              ...(item.status === "reserved"
-                ? statusActionList.map((row) => ({
-                    label: row.label,
-                    action: () => row.action(item.id, table?.id),
-                    type: row.type,
-                    variant: row.variant,
-                  }))
-                : [
-                    {
-                      label: (
-                        <Link
-                          href={`/dashboard/orders/${item.order_id}`}
-                          className="flex items-center gap-2"
-                        >
-                          <ScrollText />
-                          Detail
-                        </Link>
-                      ),
-                      type: "link" as const,
-                    },
-                  ]),
-            ]}
-          />,
+          </Badge>,
+          [
+            item.status === "reserved" ? (
+              <div className="flex gap-2" key={item.id}>
+                <Button
+                  size="sm"
+                  className="cursor-pointer"
+                  variant="default"
+                  onClick={() =>
+                    handleUpdateStatus({
+                      id: item.id,
+                      order_id:item.order_id,
+                      table_id: table?.id,
+                      status: "process",
+                    })
+                  }
+                  disabled={!!loadingAction}
+                >
+                  {loadingAction?.id === item.id &&
+                  loadingAction?.status === "process" ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <>
+                      <Link2Icon className="h-4 w-4" /> Process
+                    </>
+                  )}
+                </Button>
+                <Button
+                  size="sm"
+                  className="cursor-pointer"
+                  variant="destructive"
+                  onClick={() =>
+                    handleUpdateStatus({
+                      id: item.id,
+                      table_id: table?.id,
+                      status: "canceled",
+                    })
+                  }
+                  disabled={!!loadingAction}
+                >
+                  {loadingAction?.id === item.id &&
+                  loadingAction?.status === "canceled" ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <>
+                      <Ban className="h-4 w-4" /> Cancel
+                    </>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              <Link key={index} href={`/dashboard/orders/${item.order_id}`}>
+                <Button size="sm"
+                  className="cursor-pointer" variant="outline">
+                  <ScrollText className="h-4 w-4" />
+                  Detail
+                </Button>
+              </Link>
+            ),
+          ],
         ];
       }) || []
     );
-  }, [orders, currentLimit, currentPage, isUpdateStatus, statusAction]);
+  }, [orders, currentLimit, currentPage, loadingAction]);
 
   // ==========================
   // Pagination

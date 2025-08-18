@@ -4,11 +4,9 @@ import { useMemo } from "react";
 export default function usePricing(
   orderMenu: { menus: Menu; quantity: number }[] | null | undefined
 ) {
-  const { subtotal, discountTotal, discountSum, totalPrice } = useMemo(() => {
-    let subtotal = 0;       // total sebelum diskon
-    let discountTotal = 0;  // total nominal diskon (rupiah)
-    let discountSum = 0;    // total persen diskon (penjumlahan langsung)
-    let total = 0;          
+  const { subtotal, discountTotal, discountSum } = useMemo(() => {
+    let subtotal = 0;
+    let discountTotal = 0;
 
     orderMenu?.forEach((item) => {
       const price = item.menus.price * item.quantity;
@@ -17,24 +15,39 @@ export default function usePricing(
 
       subtotal += price;
       discountTotal += discountAmount;
-      discountSum += discountPercent; // jumlahkan persentase
-      total += price - discountAmount;
     });
 
-    return { subtotal, discountTotal, discountSum, totalPrice: total };
+    // Hitung persentase diskon efektif
+    const discountSum =
+      subtotal > 0 ? Math.round((discountTotal / subtotal) * 100) : 0;
+
+    return { subtotal, discountTotal, discountSum };
   }, [orderMenu]);
 
-  // Pajak 11%
-  const tax = useMemo(() => Math.round(totalPrice * 0.11), [totalPrice]);
+  // Pajak 11% dari harga setelah diskon
+  const tax = useMemo(() => Math.round((subtotal - discountTotal) * 0.11), [
+    subtotal,
+    discountTotal,
+  ]);
 
-  // Service charge 5%
-  const service = useMemo(() => Math.round(totalPrice * 0.05), [totalPrice]);
+  // Service 5% dari harga setelah diskon
+  const service = useMemo(() => Math.round((subtotal - discountTotal) * 0.05), [
+    subtotal,
+    discountTotal,
+  ]);
 
-  // Grand total = setelah diskon + pajak + service
+  // Grand total
   const grandTotal = useMemo(
-    () => totalPrice + tax + service,
-    [totalPrice, tax, service]
+    () => subtotal - discountTotal + tax + service,
+    [subtotal, discountTotal, tax, service]
   );
 
-  return { subtotal, discountTotal, discountSum, totalPrice, tax, service, grandTotal };
+  return {
+    subtotal,
+    discountTotal,
+    discountSum,
+    tax,
+    service,
+    grandTotal,
+  };
 }

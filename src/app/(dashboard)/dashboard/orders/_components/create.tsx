@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { startTransition, useActionState, useEffect } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Table } from "@/validations/table-validation";
@@ -12,6 +12,7 @@ import { RadioSelect, SelectInput, TextInput } from "@/components/common/inputs"
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { redirect } from "next/navigation";
 
 interface CreateTableProps {
 
@@ -29,15 +30,18 @@ export default function CreateOrder({tables }: CreateTableProps) {
     STATE_ORDER
   );
 
+  const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
+
   const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value as string);
     });
+    setSubmittedStatus(formData.get("status") as string);
 
     startTransition(() => {
       createAction(formData);
-    });
+    });    
   });
 
   useEffect(() => {
@@ -50,13 +54,15 @@ export default function CreateOrder({tables }: CreateTableProps) {
     if (createState?.status === "success") {
       toast.success("New order saved!");
       form.reset();
-
-      // Tutup modal kalau masih terbuka
       document
         .querySelector<HTMLElement>(
           '[data-state="open"] [data-slot="dialog-close"]'
         )
         ?.click();
+        if (submittedStatus === "process") {
+          return redirect(`/dashboard/orders/${createState.orderId}`)
+        }
+      setSubmittedStatus(null);
     }
   }, [createState, form]);
 

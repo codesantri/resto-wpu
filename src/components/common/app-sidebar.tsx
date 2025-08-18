@@ -34,15 +34,22 @@ import {
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
-import AvatarName from "./avatar-name";
-import { signOut } from "@/controllers/auth-controller";
 import Link from "next/link";
 import { ROUTES, RoutesKey } from "@/routes";
 
 export default function AppSidebar() {
     const { isMobile } = useSidebar();
     const pathname = usePathname();
-    const profile = useAuthStore((state)=>state.profile)
+    const profile = useAuthStore((state) => state.profile)
+    
+    const isActive=(pathname: string, itemUrl: string)=> {
+        if (itemUrl === "/dashboard") {
+            // khusus dashboard, aktif hanya jika persis sama
+            return pathname === "/dashboard";
+        }
+        return pathname.startsWith(itemUrl);
+    }
+
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader>
@@ -95,7 +102,7 @@ export default function AppSidebar() {
                                     <SidebarMenuButton asChild tooltip={item.title}>
                                         <Link href={item.url}
                                             className={cn('px-4 py-3 h-auto', {
-                                                'bg-teal-500 text-white hover:bg-teal-500 hover:text-white':pathname===item.url
+                                                'bg-teal-500 text-white hover:bg-teal-500 hover:text-white': isActive(pathname, item.url)
                                             })}
                                         > 
                                             {item.title && <item.icon className="h-50 size-20 text-2xl" />}

@@ -14,7 +14,7 @@ import { useAuthStore } from "@/stores/auth-store";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
         // const pathname = usePathname();
-        const profile = useAuthStore((state)=>state.profile)
+    const profile = useAuthStore((state)=>state.profile)
     return (
         <SidebarProvider>
             <AppSidebar />

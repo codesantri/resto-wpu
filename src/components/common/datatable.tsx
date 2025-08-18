@@ -39,7 +39,7 @@ export default function DataTable(
               {header.map((col, index) => (
                 <TableHead
                   key={`th-${col}`}
-                  className={`px-6 py-3 ${index === 0 ? "w-[100px]" : ""} ${
+                  className={`px-4 py-2 ${index === 0 ? "w-[1px]" : ""} ${
                     index === header.length - 1 ? "text-right" : ""
                   }`}
                 >
@@ -63,18 +63,25 @@ export default function DataTable(
               </TableRow>
             ) : (
               data.map((row, rowIndex) => (
-                <TableRow key={`tr-${rowIndex}`}>
+               <TableRow key={`tr-${rowIndex}`} className="align-middle">
                   {row.map((item, cellIndex) => (
                     <TableCell
                       key={`tc-${rowIndex}-${cellIndex}`}
-                      className={`px-6 py-3 ${
-                        cellIndex === 0 ? "w-[100px]" : ""
-                      } ${cellIndex === row.length - 1 ? "text-right float-end" : ""}`}
+                      className={`px-4 py-2 align-middle ${
+                        cellIndex === 0 ? "w-[1px]" : ""
+                      } ${cellIndex === row.length - 1 ? "text-right" : ""}`}
                     >
-                      {item}
+                      {cellIndex === row.length - 1 ? (
+                        <div className="flex justify-end items-center">
+                          {item}
+                        </div>
+                      ) : (
+                        item
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
+
               ))
             )}
           </TableBody>

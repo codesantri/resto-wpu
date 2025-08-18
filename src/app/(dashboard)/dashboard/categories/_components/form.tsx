@@ -53,7 +53,7 @@ export default function FormCategory<T extends FieldValues>({
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isLoading}>
+            <Button className="cursor-pointer" type="submit" disabled={isLoading}>
               {isLoading ? <Loader2 className="animate-spin" /> : type}
             </Button>
           </DialogFooter>

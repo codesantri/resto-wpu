@@ -16,15 +16,11 @@ export const metadata: Metadata = {
 
 export default function PaymentLayout({children}:AuthLayoutProps) {
     return (
-        <div style={{
-            backgroundImage: 'url("https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pinterest.com%2Fpin%2Fcanteen-background-free-vector--770889661236923225%2F&psig=AOvVaw15x_VFHAqWydlgpDyKYBDq&ust=1753551095185000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCLDarYbF2I4DFQAAAAAdAAAAABAL")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-        }} className="relative bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+        <div className="relative bg-background flex min-h-svh items-center justify-center">
             <div className="absolute top-4 right-4">
                 <DarkModeToggle/>
             </div>
-            <div  className="flex w-full max-w-sm flex-col gap-6">
+            <div  className="flex w-full flex-col">
                 {children}
             </div>
         </div>

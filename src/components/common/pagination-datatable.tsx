@@ -26,7 +26,7 @@ export default function PaginationDatatable(
                     if (page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1) {
                         return (
                             <PaginationItem key={page}>
-                                    <PaginationLink
+                                    <PaginationLink className="cursor-pointer"
                                         isActive={page === currentPage}
                                         onClick={() => {
                                             if (page !==currentPage) onChangePage(page)

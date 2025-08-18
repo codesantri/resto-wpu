@@ -87,7 +87,7 @@ export default function FormUser<T extends FieldValues>({
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" className="cursor-pointer" disabled={isLoading}>
               {isLoading ? <Loader2 className="animate-spin" /> : type}
             </Button>
           </DialogFooter>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { EllipsisVertical, Loader2 } from "lucide-react";
+import { CircleCheck, EllipsisVertical, Loader2, Navigation, Send, ShoppingBasketIcon, Trash } from "lucide-react";
 
 import Summary from "./summary";
 import DataTable from "@/components/common/datatable";
@@ -20,6 +20,7 @@ import { IS_ACTION } from "@/constants/global-constant";
 import { TABLE_HEADER_ORDER_DETAIL } from "@/tables/header-table";
 
 import { useActionState } from "react";
+import { Badge } from "@/components/ui/badge";
 
 // ==========================
 // Order Detail Page
@@ -136,69 +137,48 @@ export default function OrderDetail({ id }: { id: string }) {
           />
           <div className="flex flex-col">
             <span>{item.menus.name}</span>
-            <span className="text-muted-foreground">{IDR(item.menus.price)}</span>
+            <span className="text-muted-foreground">
+              {IDR(item.menus.price)}
+              <Badge variant="secondary" className="font-bold">x{item.quantity}</Badge>
+            </span>
             <span className="text-xs text-muted-foreground">
               {item.notes || ""}
             </span>
           </div>
         </div>,
-
-        item.quantity,
         IDR(item.menus.price * item.quantity),
-
-        // Status
-        <span
-          key={`status-${item.id}`}
-          className={cn(
-            "px-2 py-1 rounded-full text-white w-fit capitalize flex items-center gap-2",
-            {
-              "bg-success": item.status === "served",
-              "bg-info": item.status === "process",
-              "bg-warning": item.status === "pending",
-              "bg-gray": item.status === "ready",
-            }
-          )}
+        <Badge
+          className="capitalize"
+          key={item.id}
+          variant={
+            item.status === "pending" ? "warning": 
+            item.status === "process" ? "info" :
+            item.status === "ready" ? "destructive": 
+            item.status === "served" ? "success" : "secondary"
+          }
         >
-          {loadingItemId === item.id && isLoadingUpdateStatus ? (
-            <Loader2 className="animate-spin w-4 h-4" />
-          ) : (
-            item.status
-          )}
-        </span>,
-
-        // Action
-        <DropdownMenu key={`menu-action-${item.id}`}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              size="icon"
-              variant="ghost"
-              className={cn(
-                "data-[state=open]:bg-muted text-muted-foreground flex size-8",
-                { hidden: item.status === "served" }
-              )}
-            >
-              <EllipsisVertical />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            {["pending", "process", "ready"].map((status, i) => {
-              const nextStatus = ["process", "ready", "served"][i];
-              return (
-                item.status === status && (
-                  <DropdownMenuItem
-                    key={i}
-                    className="capitalize"
-                    onClick={() =>
-                      handleUpdateStatusOrder({ id: item.id, status: nextStatus })
-                    }
-                  >
-                    {nextStatus}
-                  </DropdownMenuItem>
-                )
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>,
+        {item.status}
+        </Badge>,
+        [
+          ["pending", "process", "ready"].map((status, i) => {
+            const nextStatus = ["process", "ready", "served"][i];
+            return (
+              item.status === status && (
+                <Button
+                  disabled={loadingItemId === item.id && isLoadingUpdateStatus}
+                  variant="outline"
+                  key={i}
+                  size="sm"
+                  className="capitalize cursor-pointer"
+                  onClick={()=>handleUpdateStatusOrder({ id: item.id, status: nextStatus })}
+                >
+                  {loadingItemId === item.id && isLoadingUpdateStatus ? <Loader2 className="animate-spin w-4 h-4" /> :  <Send />} {nextStatus}
+              </Button>
+              )
+            )
+          }),
+          item.status==='served' ? <CircleCheck key={index} className="text-success" />:''
+        ],
       ]) || []
     );
   }, [
@@ -250,10 +230,10 @@ export default function OrderDetail({ id }: { id: string }) {
   return (
     <div className="w-full px-4 md:px-8 lg:px-12">
       <div className="flex items-center justify-between w-full gap-4 mb-4">
-        <h1 className="text-2xl font-bold">Order Detail</h1>
+        <h1 className="text-2xl font-bold">Orders Detail</h1>
         {id && (
           <Link href={`/dashboard/orders/${id}/add`}>
-            <Button className="cursor-pointer">Add Order Item</Button>
+            <Button className="cursor-pointer">Add New Order <ShoppingBasketIcon/> </Button>
           </Link>
         )}
       </div>
